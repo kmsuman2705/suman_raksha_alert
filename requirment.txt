@@ -5,4 +5,3 @@ numpy
 face-recognition
 datetime
 smtplib
-email
