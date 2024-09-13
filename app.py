@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, request, jsonify
+from flask import Flask, jsonify, send_from_directory, render_template, request,Response,redirect,url_for,flash
 import speech_recognition as sr
 import cv2
 import numpy as np
@@ -11,9 +11,20 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from email.mime.text import MIMEText
+from werkzeug.utils import secure_filename
+
 
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'
+IMG_FOLDER = os.path.join('static', 'img', 'unknown')
+
+app.config['UPLOAD_FOLDER'] = 'static/img/known'
+app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif'}
+app.secret_key = "supersecretkey"
+
+UPLOAD_FOLDER = os.path.join('static', 'img', 'known')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # Email configuration
 smtp_server = "smtp.gmail.com"
@@ -43,7 +54,7 @@ for image_name in os.listdir(known_faces_dir):
         known_face_names.append(os.path.splitext(image_name)[0])
 
 # Video stream URL
-video_url = 'http://192.168.137.127:8080/video'
+video_url = 'http://192.168.1.112:8080/video'
 cap = cv2.VideoCapture(video_url)
 
 # Sending email with the captured image
@@ -144,9 +155,7 @@ def send_email(recipient_email, subject, body):
         return f"Failed to send email: {e}"
 
 # Route to render the HTML page
-@app.route('/')
-def index():
-    return render_template('index.html')
+
 
 # Route to handle voice recognition and email sending
 @app.route('/send-email', methods=['POST'])
@@ -174,7 +183,7 @@ def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # Route to serve live video page
-@app.route('/live_video')
+@app.route('/')
 def live_video():
     return render_template('video-page.html')
 
@@ -187,12 +196,7 @@ def register():
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
-        address1 = request.form['address1']
-        address2 = request.form['address2']
-        city = request.form['city']
-        state = request.form['state']
-        zip = request.form['zip']
-        country = request.form['country']
+        
         return 'Registration successful!'
     else:
         return render_template('register.html')
@@ -201,11 +205,77 @@ def register():
 @app.route('/login')
 def login():
     return render_template('login.html')
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route('/add_member', methods=['GET', 'POST'])
+def add_member():
+    uploaded_photo = None  # To pass the uploaded filename to the template
+    
+    # List all photos in the 'known' folder
+    known_photos = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if allowed_file(f)]
+
+    if request.method == 'POST':
+        # Check if the form contains the 'photo' field
+        if 'photo' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+
+        file = request.files['photo']
+
+        # Check if the user selected a file
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+
+        # Check if the file is allowed and save it
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            uploaded_photo = filename
+            flash('Member added successfully!')
+
+            # After uploading a new photo, refresh the list of known photos
+            known_photos = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if allowed_file(f)]
+
+    return render_template('add_member.html', uploaded_photo=uploaded_photo, known_photos=known_photos)
+
 
 # Route to handle account settings
 @app.route('/account')
 def account():
     return render_template('account.html')
+
+@app.route('/unknown_person')
+def unknown():
+    return render_template('unknown.html')
+@app.route('/images')
+def list_images():
+    # List all image files in the folder
+    images = [img for img in os.listdir(IMG_FOLDER) if img.endswith(('jpg', 'jpeg', 'png', 'gif'))]
+    return jsonify(images)
+
+@app.route('/static/img/unknown/<filename>')
+def get_image(filename):
+    # Serve images from the folder
+    return send_from_directory(IMG_FOLDER, filename)
+
+@app.route('/delete_image/<filename>', methods=['DELETE'])
+def delete_image(filename):
+    try:
+        file_path = os.path.join(IMG_FOLDER, filename)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            return jsonify({'message': f'{filename} deleted successfully.'}), 200
+        else:
+            return jsonify({'error': 'File not found'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -68,7 +68,7 @@
                </a>
             </li>
             <li class="nav-item">
-               <a class="nav-link" href="/add_member">
+               <a class="nav-link" href="/index">
                <i class="fas fa-fw fa-users"></i>
                <span>Add Members</span>
                </a>
@@ -81,8 +81,8 @@
             </li>
             <li class="nav-item">
                <a class="nav-link" href="/live_video">
-               <i class="ffas fa-fw fa-users"></i>
-               <span>Neighbor`s Details</span>
+               <i class="fas fa-fw fa-video"></i>
+               <span>Video Page</span>
                </a>
             </li>
             <li class="nav-item">
@@ -111,109 +111,101 @@
                </a>
             </li>
          </ul>
-         <div id="content-wrapper">
+        
+        <div id="content-wrapper">
             <div class="container-fluid pb-0">
-               <div class="video-block section-padding1">
-                  <div class="row">
-                     <div class="col-md-8">
-                        <div class="single-video-left">
-                           <div class="single-video">
-                              <!--<iframe width="100%" height="700" src="https://www.youtube-nocookie.com/embed/8LWZSGNjuF0?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>-->
-                              <iframe width="100%" height="600" src="{{ url_for('video_feed') }}" allowfullscreen></iframe>
-                           </div>
-                                    
+                <div class="video-block section-padding1">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="single-video-left">
+                                <div class="single-video">
+                                    <h2>Image Gallery</h2>
+                                    <div id="gallery" class="row">
+                                        <!-- Images will be dynamically loaded here -->
                                     </div>
-                                 </div>
-                              </div>
-                           </div>
+                                </div>
+                            </div>
                         </div>
-                     </div>
-                  </div>
-               </div>
+                    </div>
+                </div>
             </div>
-            <!-- /.container-fluid -->
-            <!-- Sticky Footer -->
-            
-         </div>
-         <!-- /.content-wrapper -->
-      </div>
-      <!-- /#wrapper -->
-      <!-- Scroll to Top Button-->
-      <a class="scroll-to-top rounded" href="#page-top">
-      <i class="fas fa-angle-up"></i>
-      </a>
-      <!-- Logout Modal-->
-      <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true"></span>
-                  </button>
-               </div>
-               <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-               <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                  <a class="btn btn-primary" href="/login">Logout</a>
-               </div>
+        </div>
+        
+        <!-- Logout Modal-->
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a class="btn btn-primary" href="/login">Logout</a>
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      <!-- Bootstrap core JavaScript-->
-      <script src="static/vendor/jquery/jquery.min.js"></script>
-      <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-      <!-- Core plugin JavaScript-->
-      <script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
-      <!-- Owl Carousel -->
-      <script src="static/vendor/owl-carousel/owl.carousel.js"></script>
-      <!-- Custom scripts for all pages-->
-      <script src="static/js/custom.js"></script>
-      <script>
-         document.addEventListener("DOMContentLoaded", function() {
-             if (!('webkitSpeechRecognition' in window)) {
-                 alert("Your browser does not support Web Speech API. Please use Chrome or Firefox.");
-                 return;
-             }
- 
-             const recognition = new webkitSpeechRecognition();
-             recognition.continuous = true; // Keep recognizing continuously
-             recognition.interimResults = false;
- 
-             recognition.onresult = function(event) {
-                 const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
-                 console.log(`You said: ${command}`);
- 
-                 // Send the command to the server
-                 fetch('/send-email', {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json'
-                     },
-                     body: JSON.stringify({ command: command })
-                 })
-                 .then(response => response.json())
-                 .then(data => {
-                     document.getElementById("responseMessage").innerText = data.message || data.error;
-                 })
-                 .catch(error => {
-                     document.getElementById("responseMessage").innerText = "An error occurred: " + error;
-                 });
-             };
- 
-             recognition.onerror = function(event) {
-                 document.getElementById("responseMessage").innerText = "Speech recognition error: " + event.error;
-             };
- 
-             recognition.onend = function() {
-                 // Restart recognition if it ends
-                 recognition.start();
-             };
- 
-             recognition.start();
-         });
-     </script>
-      
-   </body>
+        </div>
+        
+        <!-- Bootstrap core JavaScript-->
+        <script src="static/vendor/jquery/jquery.min.js"></script>
+        <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- Core plugin JavaScript-->
+        <script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
+        <!-- Owl Carousel -->
+        <script src="static/vendor/owl-carousel/owl.carousel.js"></script>
+        <!-- Custom scripts for all pages-->
+        <script src="static/js/custom.js"></script>
+        
+        <!-- Script to load and delete images dynamically -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const galleryDiv = document.getElementById('gallery');
+
+                // Fetch images from the server
+                fetch('/images')
+                    .then(response => response.json())
+                    .then(images => {
+                        images.forEach(image => {
+                            const colDiv = document.createElement('div');
+                            colDiv.className = 'col-md-3 mb-3';
+
+                            const imgElement = document.createElement('img');
+                            imgElement.src = `/static/img/unknown/${image}`;
+                            imgElement.alt = image;
+                            imgElement.className = 'img-fluid img-thumbnail';
+
+                            const deleteBtn = document.createElement('button');
+                            deleteBtn.innerText = 'Delete';
+                            deleteBtn.className = 'btn btn-danger btn-block mt-2';
+                            deleteBtn.onclick = () => deleteImage(image, colDiv);
+
+                            colDiv.appendChild(imgElement);
+                            colDiv.appendChild(deleteBtn);
+
+                            galleryDiv.appendChild(colDiv);
+                        });
+                    });
+
+                // Delete image function
+                function deleteImage(imageName, imageElement) {
+                    fetch(`/delete_image/${imageName}`, { method: 'DELETE' })
+                        .then(response => {
+                            if (response.ok) {
+                                galleryDiv.removeChild(imageElement);
+                            } else {
+                                alert('Failed to delete the image');
+                            }
+                        })
+                        .catch(error => alert('Error: ' + error));
+                }
+            });
+        </script>
+        
+    </div>
+</body>
 
 </html>

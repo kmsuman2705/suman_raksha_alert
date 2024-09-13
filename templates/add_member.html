@@ -81,14 +81,14 @@
             </li>
             <li class="nav-item">
                <a class="nav-link" href="/live_video">
-               <i class="ffas fa-fw fa-users"></i>
+               <i class="fas fa-fw fa-video"></i>
                <span>Neighbor`s Details</span>
                </a>
             </li>
             <li class="nav-item">
                <a class="nav-link" href="upload-video.html">
                <i class="fas fa-fw fa-cloud-upload-alt"></i>
-               <span>Upload Video</span>
+               <span>Addd Some</span>
                </a>
             </li>
             <li class="nav-item dropdown">
@@ -111,109 +111,45 @@
                </a>
             </li>
          </ul>
-         <div id="content-wrapper">
-            <div class="container-fluid pb-0">
-               <div class="video-block section-padding1">
-                  <div class="row">
-                     <div class="col-md-8">
-                        <div class="single-video-left">
-                           <div class="single-video">
-                              <!--<iframe width="100%" height="700" src="https://www.youtube-nocookie.com/embed/8LWZSGNjuF0?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>-->
-                              <iframe width="100%" height="600" src="{{ url_for('video_feed') }}" allowfullscreen></iframe>
-                           </div>
-                                    
-                                    </div>
-                                 </div>
-                              </div>
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-               </div>
-            </div>
-            <!-- /.container-fluid -->
-            <!-- Sticky Footer -->
-            
-         </div>
-         <!-- /.content-wrapper -->
-      </div>
-      <!-- /#wrapper -->
-      <!-- Scroll to Top Button-->
-      <a class="scroll-to-top rounded" href="#page-top">
-      <i class="fas fa-angle-up"></i>
-      </a>
-      <!-- Logout Modal-->
-      <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-         <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-            <div class="modal-content">
-               <div class="modal-header">
-                  <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
-                  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true"></span>
-                  </button>
-               </div>
-               <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-               <div class="modal-footer">
-                  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-                  <a class="btn btn-primary" href="/login">Logout</a>
-               </div>
-            </div>
-         </div>
-      </div>
-      <!-- Bootstrap core JavaScript-->
-      <script src="static/vendor/jquery/jquery.min.js"></script>
-      <script src="static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-      <!-- Core plugin JavaScript-->
-      <script src="static/vendor/jquery-easing/jquery.easing.min.js"></script>
-      <!-- Owl Carousel -->
-      <script src="static/vendor/owl-carousel/owl.carousel.js"></script>
-      <!-- Custom scripts for all pages-->
-      <script src="static/js/custom.js"></script>
-      <script>
-         document.addEventListener("DOMContentLoaded", function() {
-             if (!('webkitSpeechRecognition' in window)) {
-                 alert("Your browser does not support Web Speech API. Please use Chrome or Firefox.");
-                 return;
-             }
- 
-             const recognition = new webkitSpeechRecognition();
-             recognition.continuous = true; // Keep recognizing continuously
-             recognition.interimResults = false;
- 
-             recognition.onresult = function(event) {
-                 const command = event.results[event.results.length - 1][0].transcript.toLowerCase();
-                 console.log(`You said: ${command}`);
- 
-                 // Send the command to the server
-                 fetch('/send-email', {
-                     method: 'POST',
-                     headers: {
-                         'Content-Type': 'application/json'
-                     },
-                     body: JSON.stringify({ command: command })
-                 })
-                 .then(response => response.json())
-                 .then(data => {
-                     document.getElementById("responseMessage").innerText = data.message || data.error;
-                 })
-                 .catch(error => {
-                     document.getElementById("responseMessage").innerText = "An error occurred: " + error;
-                 });
-             };
- 
-             recognition.onerror = function(event) {
-                 document.getElementById("responseMessage").innerText = "Speech recognition error: " + event.error;
-             };
- 
-             recognition.onend = function() {
-                 // Restart recognition if it ends
-                 recognition.start();
-             };
- 
-             recognition.start();
-         });
-     </script>
-      
-   </body>
 
+        <!-- Content Wrapper -->
+        <div id="content-wrapper">
+            <div class="container-fluid">
+                <h2 class="mt-4">Add New Known Member</h2>
+                <!-- Form to add member and upload photo -->
+                <form action="/add_member" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="photo">Upload Photo</label>
+                        <input type="file" class="form-control-file" id="photo" name="photo" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+
+                <!-- Display flash message -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-success mt-3">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+
+        <hr>
+
+        <!-- Show uploaded photo if exists -->
+        {% if uploaded_photo %}
+        <div class="mt-4">
+            <h3>Uploaded Photo:</h3>
+            <img src="{{ url_for('static', filename='img/known/' + uploaded_photo) }}" alt="Uploaded Photo" class="img-fluid img-thumbnail" width="300">
+        </div>
+        {% endif %}
+    </div>
+            </div>
+        </div>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <script src="{{ url_for('static', filename='vendor/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+</body>
 </html>
