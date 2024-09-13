@@ -3,5 +3,3 @@ speechrecognition
 opencv-python
 numpy
 face-recognition
-datetime
-smtplib

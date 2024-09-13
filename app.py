@@ -1,5 +1,4 @@
-from flask import Flask, jsonify, send_from_directory, render_template, request,Response,redirect,url_for,flash
-import speech_recognition as sr
+from flask import Flask, jsonify, send_from_directory, render_template, request, Response, redirect, url_for, flash
 import cv2
 import numpy as np
 import face_recognition
@@ -10,9 +9,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from email.mime.text import MIMEText
 from werkzeug.utils import secure_filename
-
 
 app = Flask(__name__)
 app.config['STATIC_FOLDER'] = 'static'
@@ -34,8 +31,8 @@ smtp_password = "jrgs yfmo slpc ifyb"
 recipient_email = "avijitdutta7586@gmail.com"
 
 # Directory configuration for face recognition
-known_faces_dir = r"C:\Users\AVIJIT DUTTA\OneDrive\Desktop\raksha_alert\static\img\known"
-unknown_faces_dir = r"C:\Users\AVIJIT DUTTA\OneDrive\Desktop\OJT_INTERNSHIP\static\img\unknown"
+known_faces_dir = os.path.join('static', 'img', 'known')
+unknown_faces_dir = os.path.join('static', 'img', 'unknown')
 
 # Initialize face recognition
 known_face_encodings = []
@@ -53,9 +50,8 @@ for image_name in os.listdir(known_faces_dir):
         known_face_encodings.append(face_encoding)
         known_face_names.append(os.path.splitext(image_name)[0])
 
-# Video stream URL
-video_url = 'http://192.168.1.112:8080/video'
-cap = cv2.VideoCapture(video_url)
+# Initialize local camera
+cap = cv2.VideoCapture(0)  # Use index 0 for the default local camera
 
 # Sending email with the captured image
 def send_email_with_image(unknown_image_path):
@@ -155,7 +151,9 @@ def send_email(recipient_email, subject, body):
         return f"Failed to send email: {e}"
 
 # Route to render the HTML page
-
+@app.route('/')
+def live_video():
+    return render_template('video-page.html')
 
 # Route to handle voice recognition and email sending
 @app.route('/send-email', methods=['POST'])
@@ -182,11 +180,6 @@ def send_email_route():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-# Route to serve live video page
-@app.route('/')
-def live_video():
-    return render_template('video-page.html')
-
 # Route to handle registration
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -205,10 +198,6 @@ def register():
 @app.route('/login')
 def login():
     return render_template('login.html')
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -244,38 +233,6 @@ def add_member():
             known_photos = [f for f in os.listdir(app.config['UPLOAD_FOLDER']) if allowed_file(f)]
 
     return render_template('add_member.html', uploaded_photo=uploaded_photo, known_photos=known_photos)
-
-
-# Route to handle account settings
-@app.route('/account')
-def account():
-    return render_template('account.html')
-
-@app.route('/unknown_person')
-def unknown():
-    return render_template('unknown.html')
-@app.route('/images')
-def list_images():
-    # List all image files in the folder
-    images = [img for img in os.listdir(IMG_FOLDER) if img.endswith(('jpg', 'jpeg', 'png', 'gif'))]
-    return jsonify(images)
-
-@app.route('/static/img/unknown/<filename>')
-def get_image(filename):
-    # Serve images from the folder
-    return send_from_directory(IMG_FOLDER, filename)
-
-@app.route('/delete_image/<filename>', methods=['DELETE'])
-def delete_image(filename):
-    try:
-        file_path = os.path.join(IMG_FOLDER, filename)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            return jsonify({'message': f'{filename} deleted successfully.'}), 200
-        else:
-            return jsonify({'error': 'File not found'}), 404
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
